@@ -673,35 +673,88 @@
     </footer>
 
     <!-- WHITELIST MODAL -->
-    <div id="wl-modal" onclick="if (event.target.id === 'wl-modal') hideWLModal()" 
-         class="hidden fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] flex items-center justify-center p-6">
-        <div onclick="event.stopImmediatePropagation()" 
-             class="modal w-full max-w-lg bg-[#111116] border border-white/10 rounded-3xl overflow-hidden">
-            
-            <!-- Modal Header -->
-            <div class="px-8 pt-8 pb-5 flex items-center justify-between border-b border-white/10">
+<div id="wl-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] flex items-center justify-center p-6">
+    <div class="w-full max-w-md bg-[#111116] rounded-3xl overflow-hidden">
+        <div class="px-8 pt-8 pb-5 border-b border-white/10">
+            <h2 class="font-display text-3xl tracking-tighter">Apply for Whitelist</h2>
+            <p class="text-[#ccff00] text-sm">ROBINCHUBBS GENESIS</p>
+        </div>
+        
+        <div class="p-8">
+            <form id="wl-form" onsubmit="submitWhitelist(event)" class="space-y-6">
                 <div>
-                    <div class="font-display text-3xl tracking-tighter">Apply for Whitelist</div>
-                    <div class="text-xs text-[#ccff00] font-medium tracking-widest">ROBINCHUBBS GENESIS</div>
+                    <label class="block text-xs font-semibold text-white/60 mb-2">TWITTER / X HANDLE</label>
+                    <input type="text" id="twitter" required placeholder="@username" 
+                           class="w-full bg-black border border-white/20 rounded-2xl px-5 py-4 focus:border-[#ccff00]">
                 </div>
-                <button onclick="hideWLModal()" class="w-10 h-10 flex items-center justify-center text-2xl text-white/60 hover:text-white transition-colors">×</button>
-            </div>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-white/60 mb-2">REPOST / COMMENT</label>
+                    <textarea id="repost" required rows="4" placeholder="Link repost atau komentar kamu..." 
+                              class="w-full bg-black border border-white/20 rounded-2xl px-5 py-4 focus:border-[#ccff00]"></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-white/60 mb-2">EVM ADDRESS</label>
+                    <input type="text" id="evmAddress" required placeholder="0x..." 
+                           class="w-full bg-black border border-white/20 rounded-2xl px-5 py-4 focus:border-[#ccff00] font-mono">
+                </div>
 
-            <div class="p-8">
-                <form id="wl-form" onsubmit="submitWhitelist(event)">
-                    <div class="space-y-5">
-                        <!-- Twitter -->
-                        <div>
-                            <label class="text-xs font-semibold tracking-wider text-white/60 block mb-1.5">TWITTER / X HANDLE</label>
-                            <div class="relative">
-                                <div class="absolute left-5 top-1/2 -translate-y-1/2 text-white/40">
-                                    <i class="fa-brands fa-x-twitter"></i>
-                                </div>
-                                <input type="text" id="twitter" placeholder="@yourhandle" required 
-                                       class="w-full bg-[#0a0a0f] border border-white/20 focus:border-[#ccff00] rounded-2xl pl-12 pr-5 py-3.5 outline-none text-white placeholder:text-white/40">
-                            </div>
-                        </div>
+                <button type="submit" id="submitBtn"
+                        class="neon-button w-full py-4 rounded-3xl text-lg font-bold">
+                    SUBMIT APPLICATION
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
 
+<script>
+    // Supabase Client
+    const supabase = Supabase.createClient(
+        'https://uydolcvxcaxqlzwvciha.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5ZG9sY3Z4Y2F4cWx6d3ZjaWhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwNTA0ODQsImV4cCI6MjA5OTYyNjQ4NH0.Geb-6EublNY5es6grDhp66djcTUuPIgQUuaX-WNnzuc'
+    );
+
+    async function submitWhitelist(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.textContent = "Submitting...";
+
+        try {
+            const { error } = await supabase
+                .from('whitelist_applications')
+                .insert([{
+                    twitter: document.getElementById('twitter').value.trim(),
+                    repost: document.getElementById('repost').value.trim(),
+                    evm_address: document.getElementById('evmAddress').value.trim()
+                }]);
+
+            if (error) throw error;
+
+            alert("✅ Application submitted successfully! We'll contact you soon.");
+            document.getElementById('wl-form').reset();
+            hideWLModal();
+        } catch (err) {
+            console.error(err);
+            alert("❌ Error: " + (err.message || "Please try again later."));
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "SUBMIT APPLICATION";
+        }
+    }
+
+    function showWLModal() {
+        document.getElementById('wl-modal').classList.remove('hidden');
+        document.getElementById('wl-modal').classList.add('flex');
+    }
+
+    function hideWLModal() {
+        document.getElementById('wl-modal').classList.add('hidden');
+        document.getElementById('wl-modal').classList.remove('flex');
+    }
+</script>
                         <!-- Wallet -->
                         <div>
                             <label class="text-xs font-semibold tracking-wider text-white/60 block mb-1.5">WALLET ADDRESS</label>
